@@ -2688,19 +2688,27 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 258:
-/***/ ((module) => {
+/***/ 594:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-let wait = function (milliseconds) {
-  return new Promise((resolve) => {
-    if (typeof milliseconds !== 'number') {
-      throw new Error('milliseconds not a number');
-    }
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-};
+const crypto = __nccwpck_require__(113);
 
-module.exports = wait;
+/**
+ *
+ * @param {string} body Serialized JSON or URL-encoded body
+ * @param {string} secret Secret used to sign the payload
+ * @returns {string} Signature, prefixed with "sha256="
+ */
+function signBody(body, secret) {
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(body, "utf8")
+    .digest("hex");
+
+  return `sha256=${signature}`;
+}
+
+module.exports.signBody = signBody;
 
 
 /***/ }),
@@ -2835,20 +2843,21 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(186);
-const wait = __nccwpck_require__(258);
-
+const { signBody } = __nccwpck_require__(594);
 
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
+    const secret = core.getInput("secret");
+    if (!secret) {
+      throw new Error("No secret provided");
+    }
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
+    const body = core.getInput("body") || "";
+    const signature = signBody(body, secret);
+    core.debug(`Signature: ${signature}`); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
-    core.setOutput('time', new Date().toTimeString());
+    core.setOutput("signature", signature);
   } catch (error) {
     core.setFailed(error.message);
   }
