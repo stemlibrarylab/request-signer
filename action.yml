@@ -12,6 +12,8 @@ inputs:
 outputs:
   signature:
     description: 'The signature of the request payload. Prefixed with "sha256="'
+  payload:
+    description: "The original request body payload"
 runs:
   using: "node16"
   main: "dist/index.js"

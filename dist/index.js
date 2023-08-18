@@ -2858,6 +2858,7 @@ async function run() {
     core.debug(`Signature: ${signature}`); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
     core.setOutput("signature", signature);
+    core.setOutput("payload", body);
   } catch (error) {
     core.setFailed(error.message);
   }
