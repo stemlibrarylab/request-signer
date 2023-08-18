@@ -1,24 +1,24 @@
-const wait = require('./wait');
-const process = require('process');
-const cp = require('child_process');
-const path = require('path');
+const { signBody } = require("./sign");
+const process = require("process");
+const cp = require("child_process");
+const path = require("path");
 
-test('throws invalid number', async () => {
-  await expect(wait('foo')).rejects.toThrow('milliseconds not a number');
-});
+test("creates a SHA256 hash signature using the secret", async () => {
+  const body = "key1=value1&key2=value2";
+  const secret = "secret";
+  const actual = signBody(body, secret);
 
-test('wait 500 ms', async () => {
-  const start = new Date();
-  await wait(500);
-  const end = new Date();
-  var delta = Math.abs(end - start);
-  expect(delta).toBeGreaterThanOrEqual(500);
+  const expected =
+    "sha256=59e0a47b8cb0220207101a844200073d87dccf3611ac230a56fab07352109b95";
+  expect(actual).toBe(expected);
 });
 
 // shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = 100;
-  const ip = path.join(__dirname, 'index.js');
-  const result = cp.execSync(`node ${ip}`, {env: process.env}).toString();
+test("test runs", () => {
+  process.env["WEBHOOK_SECRET"] = "secret";
+  const codePath = path.join(__dirname, "sign.js");
+  const result = cp
+    .execSync(`node ${codePath}`, { env: process.env })
+    .toString();
   console.log(result);
-})
+});

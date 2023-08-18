@@ -1,13 +1,17 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: "Sign Request"
+description: "Sign a request body"
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  body:
+    description: "The request body to sign. Can be a JSON string or a URL-encoded query string"
     required: true
-    default: '1000'
+    default: "key1=value1&key2=value2"
+  secret:
+    description: "Secret used to sign the request payload"
+    required: true
+    default: "very-secure-secret-change-me"
 outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  signature:
+    description: 'The signature of the request payload. Prefixed with "sha256="'
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"
